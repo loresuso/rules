@@ -56,6 +56,7 @@ const sampleFalcoCompareOutput = `{
 			"details": {
 				"condition_fields": [],
 				"events": ["execve", "openat"],
+				"exceptions" : [],
 				"exception_fields": [],
 				"exception_operators": [],
 			"lists": [],
@@ -102,6 +103,7 @@ func TestCompareRulesPatch(t *testing.T) {
 			assert.Len(t, res, 1)
 		})
 	})
+
 	t.Run("change-list", func(t *testing.T) {
 		t.Parallel()
 		t.Run("add-item", func(t *testing.T) {
@@ -165,6 +167,22 @@ func TestCompareRulesPatch(t *testing.T) {
 			o2 := testGetSampleFalcoCompareOutput(t)
 			o1.Rules[0].Info.Priority = "DEBUG"
 			o2.Rules[0].Info.Priority = "INFO"
+			res := compareRulesPatch(o1, o2)
+			assert.Len(t, res, 1)
+		})
+		t.Run("add-exceptions", func(t *testing.T) {
+			t.Parallel()
+			o2 := testGetSampleFalcoCompareOutput(t)
+			o2.Rules[0].Details.Exceptions = append(o2.Rules[0].Details.Exceptions, "some-exception-name")
+			res := compareRulesPatch(testGetSampleFalcoCompareOutput(t), o2)
+			assert.Len(t, res, 1)
+		})
+		t.Run("remove-exceptions", func(t *testing.T) {
+			t.Parallel()
+			o1 := testGetSampleFalcoCompareOutput(t)
+			o2 := testGetSampleFalcoCompareOutput(t)
+			o1.Rules[0].Details.Exceptions = append(o1.Rules[0].Details.Exceptions, "exception1, exception2")
+			o2.Rules[0].Details.Exceptions = append(o2.Rules[0].Details.Exceptions, "exception1")
 			res := compareRulesPatch(o1, o2)
 			assert.Len(t, res, 1)
 		})
