@@ -49,6 +49,8 @@ const sampleFalcoCompareOutput = `{
 			}
 		}
 	],
+	"required_engine_version": "13",
+	"required_plugin_versions": [],
 	"rules": [
 		{
 			"details": {
@@ -83,6 +85,23 @@ func testGetSampleFalcoCompareOutput(t *testing.T) *falcoCompareOutput {
 
 func TestCompareRulesPatch(t *testing.T) {
 	t.Parallel()
+	t.Run("change-required-engine-version", func(t *testing.T) {
+		t.Parallel()
+		t.Run("decrement-required-engine-version", func(t *testing.T) {
+			t.Parallel()
+			o2 := testGetSampleFalcoCompareOutput(t)
+			o2.RequiredEngineVersion = "0"
+			res := compareRulesPatch(testGetSampleFalcoCompareOutput(t), o2)
+			assert.Len(t, res, 1)
+		})
+		t.Run("increment-required-engine-version", func(t *testing.T) {
+			t.Parallel()
+			o2 := testGetSampleFalcoCompareOutput(t)
+			o2.RequiredEngineVersion = "100"
+			res := compareRulesMinor(testGetSampleFalcoCompareOutput(t), o2)
+			assert.Len(t, res, 1)
+		})
+	})
 	t.Run("change-list", func(t *testing.T) {
 		t.Parallel()
 		t.Run("add-item", func(t *testing.T) {
